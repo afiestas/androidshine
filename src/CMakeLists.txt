@@ -1,0 +1,8 @@
+project(androidshine)
+find_package(KDE4 REQUIRED)
+include(KDE4Defaults)
+include_directories(${KDE4_INCLUDES})
+set(androidshine_SRCS main.cpp mainwindow.cpp)
+kde4_add_executable(androidshine ${androidshine_SRCS})
+target_link_libraries(androidshine ${KDE4_KDEUI_LIBS})
+install(TARGETS androidshine  ${INSTALL_TARGETS_DEFAULT_ARGS})
