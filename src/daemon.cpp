@@ -20,6 +20,7 @@
 
 #include <QtNetwork/QUdpSocket>
 
+#include <KDE/KIcon>
 #include <KDE/KPluginFactory>
 #include <KDE/KNotification>
 
@@ -30,6 +31,7 @@ K_EXPORT_PLUGIN(AndroidShineFactory("androidshine", "androidshine"))
 Daemon::Daemon(QObject *parent, const QList<QVariant>&)
     : KDEDModule(parent)
     , m_udpSocket(new QUdpSocket(this))
+    , m_extractor("^v(\\d+)/([^/]+)/([^/]+)/([^/]+)/([^/]*)/(.*)$")
 {
     m_udpSocket->bind(10600);
     connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readPendingNotifications()));
@@ -49,31 +51,39 @@ void Daemon::readPendingNotifications()
          quint16 senderPort;
          m_udpSocket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
 
-         const QRegExp extractor("^v(\\d+)/([^/]+)/([^/]+)/([^/]+)/([^/]*)/(.*)$");
-         const int pos = extractor.indexIn(datagram);
+         const int pos = m_extractor.indexIn(datagram);
          if (pos > -1) {
-             const QString version = extractor.cap(1);
-             const QString deviceId = extractor.cap(2);
-             const QString notificationId = extractor.cap(3);
-             const QString eventType = extractor.cap(4);
-             const QString data = extractor.cap(5);
-             const QString eventContents = extractor.cap(6);
+             const QString version = m_extractor.cap(1);
+             const QString deviceId = m_extractor.cap(2);
+             const QString notificationId = m_extractor.cap(3);
+             const QString eventType = m_extractor.cap(4);
+             const QString data = m_extractor.cap(5);
+             const QString eventContents = m_extractor.cap(6);
 
              QString type = "unknownEvent";
+             QString icon = "pda";
              if (eventType == "RING") {
                  type = "callReceived";
+                 icon = "call-start";
              } else if (eventType == "SMS") {
                  type = "smsReceived";
+                 icon = "mail-receive";
              } else if (eventType == "MMS") {
                  type = "mmsReceived";
+                 icon = "mail-receive";
              } else if (eventType == "BATTERY") {
                  type = "batteryChanged";
+                 icon = "battery-100"; // Here we need to take all different cases into account. All
+                                       // possible steps on battery charge level and state (discharging
+                                       // or charging)
              } else if (eventType == "PING") {
                  type = "pingReceived";
+                 icon = "dialog-ok";
              }
 
             KComponentData componentData("androidshine", "androidshine");
             KNotification *notification = new KNotification(type);
+            notification->setPixmap(KIcon(icon).pixmap(48, 48));
             notification->setComponentData(componentData);
             notification->setText(eventContents);
             notification->sendEvent();

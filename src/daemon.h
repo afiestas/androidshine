@@ -19,6 +19,8 @@
 #ifndef DAEMON_H
 #define DAEMON_H
 
+#include <QtCore/QRegExp>
+
 #include <KDE/KDEDModule>
 
 class QUdpSocket;
@@ -36,7 +38,8 @@ private Q_SLOTS:
     void readPendingNotifications();
 
 private:
-    QUdpSocket *m_udpSocket;
+    QUdpSocket *const m_udpSocket;
+    const QRegExp m_extractor;
 };
 
-#endif
+#endif // DAEMON_H
