@@ -1,4 +1,6 @@
 set(kded_androidshine_SRCS
+    udpwireless.cpp
+    bluetooth.cpp
     daemon.cpp
 )
 

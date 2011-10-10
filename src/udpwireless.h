@@ -16,24 +16,31 @@
  * along with Android Shine.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "daemon.h"
-#include "udpwireless.h"
 
-#include <KDE/KPluginFactory>
+#ifndef UDP_WIRELESS_H
+#define UDP_WIRELESS_H
 
-K_PLUGIN_FACTORY(AndroidShineFactory,
-                 registerPlugin<Daemon>();)
-K_EXPORT_PLUGIN(AndroidShineFactory("androidshine", "androidshine"))
+#include <QObject>
+#include <QRegExp>
 
-Daemon::Daemon(QObject *parent, const QList<QVariant>&)
-    : KDEDModule(parent)
+class QUdpSocket;
+
+class UDPWireless
+    : public QObject
 {
-    m_udpWireless = new UDPWireless(this);
-}
+    Q_OBJECT
 
-Daemon::~Daemon()
-{
+public:
+    UDPWireless(QObject* parent = 0);
+    virtual ~UDPWireless();
 
-}
+public Q_SLOTS:
+    void readPendingNotifications();
 
 
+private:
+    QUdpSocket *const m_udpSocket;
+    const QRegExp m_extractor;
+};
+
+#endif // UDP_WIRELESS_H

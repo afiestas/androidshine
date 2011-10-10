@@ -23,7 +23,7 @@
 
 #include <KDE/KDEDModule>
 
-class QUdpSocket;
+class UDPWireless;
 
 class Daemon
     : public KDEDModule
@@ -34,12 +34,8 @@ public:
     Daemon(QObject *parent, const QList<QVariant>&);
     virtual ~Daemon();
 
-private Q_SLOTS:
-    void readPendingNotifications();
-
 private:
-    QUdpSocket *const m_udpSocket;
-    const QRegExp m_extractor;
+    UDPWireless *m_udpWireless;
 };
 
 #endif // DAEMON_H
