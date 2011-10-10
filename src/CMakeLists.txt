@@ -5,13 +5,24 @@ find_package(KDE4 REQUIRED)
 include(KDE4Defaults)
 include_directories(${KDE4_INCLUDES})
 
-set(androidshine_SRCS device.cpp
-                      main.cpp
-                      mainwindow.cpp
-                      transport/adb.cpp)
+set(kded_androidshine_SRCS
+    daemon.cpp
+    main.cpp
+)
 
-kde4_add_executable(androidshine ${androidshine_SRCS})
+qt4_add_dbus_interface(kded_androidshine_SRCS
+    org.kde.AndroidShine.Service.xml
+    androidshine_service_interface)
 
-target_link_libraries(androidshine ${KDE4_KDEUI_LIBS})
+kde4_add_plugin(kded_androidshine
+    ${kded_androidshine_SRCS}
+)
 
-install(TARGETS androidshine ${INSTALL_TARGETS_DEFAULT_ARGS})
+target_link_libraries(kded_androidshine
+    ${KDE4_KDECORE_LIBS}
+)
+
+install(TARGETS kded_androidshine DESTINATION ${PLUGIN_INSTALL_DIR})
+install(FILES androidshine.desktop DESTINATION ${SERVICES_INSTALL_DIR}/kded)
+
+
