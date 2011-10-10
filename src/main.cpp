@@ -1,4 +1,4 @@
-/*
+/**
  * This file is part of Android Shine.
  * Copyright (C) 2011 Rafael Fernández López <ereslibre@kde.org>
  *

@@ -16,32 +16,24 @@
  * along with Android Shine.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mainwindow.h"
+#include "device.h"
 
-#include <QtNetwork/QUdpSocket>
-
-#include <KDE/KDebug>
-
-MainWindow::MainWindow(QWidget *parent)
-    : KXmlGuiWindow(parent)
-    , m_udpSocket(new QUdpSocket(this))
-{
-    m_udpSocket->bind(10600);
-    connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readPendingDatagrams()));
-}
-
-MainWindow::~MainWindow()
+Device::Device(const QString &serialNumber, const QString &type)
+    : m_serialNumber(serialNumber)
+    , m_type(type)
 {
 }
 
-void MainWindow::readPendingDatagrams() const
+Device::~Device()
 {
-    while (m_udpSocket->hasPendingDatagrams()) {
-        QByteArray datagram;
-        datagram.resize(m_udpSocket->pendingDatagramSize());
-        QHostAddress sender;
-        quint16 senderPort;
-        m_udpSocket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
-        kDebug() << datagram;
-    }
+}
+
+QString Device::serialNumber() const
+{
+    return m_serialNumber;
+}
+
+QString Device::type() const
+{
+    return m_type;
 }

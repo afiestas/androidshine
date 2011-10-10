@@ -16,32 +16,21 @@
  * along with Android Shine.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mainwindow.h"
+#include "adb.h"
 
-#include <QtNetwork/QUdpSocket>
-
-#include <KDE/KDebug>
-
-MainWindow::MainWindow(QWidget *parent)
-    : KXmlGuiWindow(parent)
-    , m_udpSocket(new QUdpSocket(this))
-{
-    m_udpSocket->bind(10600);
-    connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readPendingDatagrams()));
-}
-
-MainWindow::~MainWindow()
+Adb::Adb()
 {
 }
 
-void MainWindow::readPendingDatagrams() const
+Adb::~Adb()
 {
-    while (m_udpSocket->hasPendingDatagrams()) {
-        QByteArray datagram;
-        datagram.resize(m_udpSocket->pendingDatagramSize());
-        QHostAddress sender;
-        quint16 senderPort;
-        m_udpSocket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
-        kDebug() << datagram;
-    }
+}
+
+void Adb::pushPublicKey(const QString &publicKey) const
+{
+}
+
+QString Adb::pullPublicKey() const
+{
+    return QString();
 }
