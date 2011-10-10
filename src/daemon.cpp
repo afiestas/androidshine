@@ -16,28 +16,67 @@
  * along with Android Shine.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <KApplication>
-#include <KAboutData>
-#include <KCmdLineArgs>
-#include <KLocale>
+#include "daemon.h"
 
-#include "mainwindow.h"
+#include <QtNetwork/QUdpSocket>
 
-int main (int argc, char **argv)
+#include <KDE/KPluginFactory>
+#include <KDE/KNotification>
+
+K_PLUGIN_FACTORY(AndroidShineFactory,
+                 registerPlugin<Daemon>();)
+K_EXPORT_PLUGIN(AndroidShineFactory("androidshine", "androidshine"))
+
+Daemon::Daemon(QObject *parent, const QList<QVariant>&)
+    : KDEDModule(parent)
+    , m_udpSocket(new QUdpSocket(this))
 {
-    KAboutData aboutData("androidshine", 0, ki18n("Android Shine"), "0.1",
-                         ki18n("Notifies events on your Android phone"),
-                         KAboutData::License_GPL_V3,
-                         ki18n("(c) 2011 Rafael Fernández López"),
-                         ki18n("Dragons and Robots are now friends"),
-                         "http://www.kde.org/",
-                         "ereslibre@kde.org");
- 
-    KCmdLineArgs::init(argc, argv, &aboutData);    
-    KApplication app;
+    m_udpSocket->bind(10600);
+    connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readPendingNotifications()));
+}
 
-    MainWindow *window = new MainWindow();
-    window->show();
+Daemon::~Daemon()
+{
 
-    return app.exec();
+}
+
+void Daemon::readPendingNotifications()
+{
+    while (m_udpSocket->hasPendingDatagrams()) {
+         QByteArray datagram;
+         datagram.resize(m_udpSocket->pendingDatagramSize());
+         QHostAddress sender;
+         quint16 senderPort;
+         m_udpSocket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
+
+         const QRegExp extractor("^v(\\d+)/([^/]+)/([^/]+)/([^/]+)/([^/]*)/(.*)$");
+         const int pos = extractor.indexIn(datagram);
+         if (pos > -1) {
+             const QString version = extractor.cap(1);
+             const QString deviceId = extractor.cap(2);
+             const QString notificationId = extractor.cap(3);
+             const QString eventType = extractor.cap(4);
+             const QString data = extractor.cap(5);
+             const QString eventContents = extractor.cap(6);
+
+             QString type = "unknownEvent";
+             if (eventType == "RING") {
+                 type = "callReceived";
+             } else if (eventType == "SMS") {
+                 type = "smsReceived";
+             } else if (eventType == "MMS") {
+                 type = "mmsReceived";
+             } else if (eventType == "BATTERY") {
+                 type = "batteryChanged";
+             } else if (eventType == "PING") {
+                 type = "pingReceived";
+             }
+
+            KComponentData componentData("androidshine", "androidshine");
+            KNotification *notification = new KNotification(type);
+            notification->setComponentData(componentData);
+            notification->setText(eventContents);
+            notification->sendEvent();
+         }
+     }
 }

@@ -1,0 +1,34 @@
+[Global]
+IconName=preferences-system-bluetooth
+Name=Android Shine
+Comment=Android Shine
+
+[Event/callReceived]
+Name=Calling
+Comment=Someone is calling you
+Action=Popup
+
+[Event/smsReceived]
+Name=SMS
+Comment=Someone sent you a SMS
+Action=Popup
+
+[Event/mmsReceived]
+Name=MMS
+Comment=Someone sent you a MMS
+Action=Popup
+
+[Event/batteryChanged]
+Name=Battery
+Comment=Your battery state changed
+Action=Popup
+
+[Event/pingReceived]
+Name=Ping
+Comment=Someone pinged you
+Action=Popup
+
+[Event/unknownEvent]
+Name=Unknown
+Comment=Something unknown happened
+Action=Popup
