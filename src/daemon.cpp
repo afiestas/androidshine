@@ -50,7 +50,6 @@ void Daemon::readPendingNotifications()
          QHostAddress sender;
          quint16 senderPort;
          m_udpSocket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
-
          const int pos = m_extractor.indexIn(datagram);
          if (pos > -1) {
              const QString version = m_extractor.cap(1);
@@ -72,7 +71,7 @@ void Daemon::readPendingNotifications()
                  type = "mmsReceived";
                  icon = "mail-receive";
              } else if (eventType == "BATTERY") {
-                 type = "batteryChanged";
+                 type = "battery100";
                  icon = "battery-100"; // Here we need to take all different cases into account. All
                                        // possible steps on battery charge level and state (discharging
                                        // or charging)
